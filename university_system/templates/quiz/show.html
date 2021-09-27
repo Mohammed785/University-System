@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* the why to resize image */
+        img{
+            width: 200px!important;
+            height: 200px!important;
+        }
+    </style>
+</head>
+<body>
+    <form action="" method="POST">
+        {%csrf_token%}
+        {%for question in form.questions%}
+
+        {{question.body|safe}}
+
+
+        {%for choice in question.choices.all%}
+        <label>
+        <input type="radio" name="{{question.id}}" value="{{choice.body}}" required id="id_{{question.id}}_{{choice.id}}">
+         {{choice.body}}
+        </label>
+        {%endfor%}
+        {%endfor%}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

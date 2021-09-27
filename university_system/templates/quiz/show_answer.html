@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    {%for q,a in qa%} 
+        {%for choice in q.choices.all%} 
+            {%if choice.is_correct%}
+                {%if choice == a.choice%}
+                    <li style="color: green">-->{{choice.body}}</li>
+                {%else%}
+                    <li style="color: green">{{choice.body}}</li>
+                {%endif%} 
+            {%else%} 
+                {%if choice == a.choice%}
+                    <li>-->{{choice.body}}</li>
+                {%else%}
+                    <li>{{choice.body}}</li>
+                {%endif%} 
+            {%endif%} 
+        {%endfor%} 
+    {%endfor%}
+  </body>
+</html>
