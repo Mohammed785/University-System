@@ -116,7 +116,7 @@ class QuizQuestionChoices(models.Model):
             self.slug = slug_generator(self)
         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self):# recheck this i should remove it or change it
         return reverse("view-qs")
 
     @property
@@ -130,8 +130,8 @@ class QuizQuestionChoices(models.Model):
 
 class StudentQuizAnswers(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"is_prof": False})
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE,related_name='student_answers')
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)#i think question and choice should be one to one rel
     choice = models.ForeignKey(QuizQuestionChoices, on_delete=models.CASCADE)
 
     class Meta:
@@ -144,7 +144,7 @@ class StudentQuizAnswers(models.Model):
     def is_right(self):
         return self.choice.is_correct
 
-    def get_answer_grade(self):
+    def get_grade(self):
         if self.is_right:
             return self.question.grade
         return 0

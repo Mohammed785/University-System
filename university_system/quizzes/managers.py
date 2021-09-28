@@ -16,11 +16,16 @@ class QuizManager(models.Manager):
     #Re check answered an unanswered
     def get_answered_quizzes(self,course,studnet):
         from .models import QuizAttempts
-        student_attempts = QuizAttempts.objects.filter(student=studnet).all()
+        student_attempts = QuizAttempts.objects.filter(students=studnet).all()
         quizzes = self.filter(course=course,students_attempts__in=student_attempts).all()
-        return quizzes,course
+        return quizzes
 
     def get_unanswered_quizzes(self,course,studnet):
         quizzes = self.filter(course=course).all()
         answered= self.get_answered_quizzes(course,studnet)
         return [quiz for quiz in quizzes if quiz not in answered]
+    
+    def get_student_grade(self,quiz,student):
+        from .models import StudentQuizAnswers
+        answers = StudentQuizAnswers.objects.filter(student=student,quiz=quiz).all()
+        return sum(ans.get_grade() for ans in answers)
