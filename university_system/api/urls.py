@@ -7,6 +7,6 @@ urlpatterns = [
     path('grade/',gradeView,name='grade-view'),
     path('grade/quizzes/api/<course_code>',course_quizzes_grade_api,name='quizzes-api'),
     path('grade/quizzes/',course_quizzes_grade_view,name='quizzes-view'),
-    path('grade/semester/api/<int:year>/semester/',semester_course_grade_api,name='semester-grade-api'),
+    path('grade/semester/api/<int:year>/<semester>/',semester_course_grade_api,name='semester-grade-api'),
     path('grade/semester/',semester_course_grade_view,name='semester-grade-view'),
 ]

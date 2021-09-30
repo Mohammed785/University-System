@@ -45,7 +45,7 @@ class Grade(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name="course_grade")
-    semester_grade = models.ForeignKey("SemesterGrade", on_delete=models.CASCADE, null=True, blank=True)
+    semester_grade = models.ForeignKey("SemesterGrade", on_delete=models.CASCADE, null=True, blank=True,related_name='course_grade')
     objects = GradeManager()
 
     class Meta:
@@ -95,9 +95,9 @@ class SemesterGrade(models.Model):
         pass
 
     def calc_total(self):
-        for course in self.course_grade:
-            self.total += course.get_total_grades
-        return self.total
+        grades = {course:course.get_total_grades() for course in self.course_grade.all()}
+        total = sum(grades.values())
+        return grades,total
 
 
 class MidtermGrade(models.Model):

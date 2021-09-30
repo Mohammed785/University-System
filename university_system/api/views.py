@@ -3,7 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import exceptions
-from grades.models import Grade
+from grades.models import Grade,SemesterGrade,Semester,Year
 from courses.models import Course
 from quizzes.models import Quiz
 
@@ -54,8 +54,18 @@ def course_quizzes_grade_view(request):
     return render(request,'grade/quizgrade.html')
 
 @api_view(['GET'])
-def semester_course_grade_api(request):
-    ...
-
+def semester_course_grade_api(request,year,semester):
+    year=Year.objects.get(year=year)
+    semester = Semester.objects.get(semester=semester,year=year)
+    grade = SemesterGrade.objects.get(student=request.user,year=year,semester=semester)
+    grades,total = grade.calc_total()
+    labels = [course.course.name for course in grades.keys()]
+    data = {
+        'labels':labels,
+        'data':grades.values(),
+        'total':total
+    }
+    return Response(data=data)
+    
 def semester_course_grade_view(request):
     return render(request,'grade/semester_grade.html')
