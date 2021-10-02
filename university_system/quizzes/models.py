@@ -5,6 +5,7 @@ from django.conf import settings
 from users.utils import PathAndRename, slug_generator, image_resize
 from courses.models import Course
 from datetime import datetime, timedelta
+import pytz
 from ckeditor_uploader.fields import RichTextUploadingField
 from .managers import QuizManager
 
@@ -16,7 +17,7 @@ class Quiz(models.Model):
     name = models.CharField(max_length=30)
     start = models.DateTimeField(null=True)
     duration = models.IntegerField(null=True, blank=True)
-    quiz_images = models.ImageField(
+    quiz_image = models.ImageField(
         upload_to=PathAndRename("images\\quiz_images"), default="images\\quiz_images\\default.png"
     )
     slug = models.SlugField(max_length=5, null=True, blank=True, unique=True)
@@ -29,7 +30,7 @@ class Quiz(models.Model):
         indexes = [models.Index(fields=["slug"], name="quiz_idx")]
 
     def __str__(self):
-        return f"{self.name}/{self.course.name}"
+        return f"{self.name} {self.course.name}"
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -48,7 +49,7 @@ class Quiz(models.Model):
 
     @property
     def is_open(self):
-        if datetime.utcnow() > self.get_end_time:
+        if pytz.utc.localize(datetime.utcnow()) > self.get_end_time:
             return False
         return True
 

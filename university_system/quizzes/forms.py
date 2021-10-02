@@ -40,7 +40,7 @@ class CreateQuizForm(forms.ModelForm):
 
     class Meta:
         model = Quiz
-        fields = ["name", "start", "duration", "quiz_images"]
+        fields = ["name", "start", "duration", "quiz_image"]
 
 
 class CreateQuizQuestionForm(forms.ModelForm):

@@ -64,7 +64,7 @@ class Assignment(models.Model):
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.file.name}//{self.course.name}'
+        return self.file.name
 
     def get_absolute_url(self):
         return reverse('assignment_view',kwargs={'slug':self.slug})

@@ -83,7 +83,7 @@ class User(UserAbstract):
         swappable = 'AUTH_USER_MODEL'
     
     def __str__(self):
-        return f'{self.name}/{self.college_id}'
+        return f'{self.name}' if self.is_prof else f'{self.name}/{self.college_id}' 
 
     @property
     def get_age(self):
