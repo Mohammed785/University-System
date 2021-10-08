@@ -1,5 +1,4 @@
 from django.shortcuts import redirect, render, get_object_or_404
-# from django.urls import reverse
 from django.views.generic import UpdateView, DeleteView, ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
@@ -82,6 +81,11 @@ class ViewCourseAssignment(LoginRequiredMixin,UserPassesTestMixin, ListView):
         course = get_object_or_404(Course, slug=self.kwargs["slug"])
         return course.assignment_set.all()
 
+class ViewAssignment(LoginRequiredMixin,DetailView):
+    model = Assignment
+    template_name = 'course/assignment_view.html'
+    constext_object_name = 'assignment'
+    
 
 class UpdateAssignmentView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Assignment

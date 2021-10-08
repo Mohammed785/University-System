@@ -9,7 +9,7 @@ class GradeManager(models.Manager):
         from .models import Year
         from courses.models import Course
 
-        year = Year.objects.filter(year=year).first()
+        year = Year.objects.get(year=year)
         course = Course.objects.get(course_code=course)
         return year, course
 
@@ -23,13 +23,6 @@ class GradeManager(models.Manager):
         results = self.filter(final__lt=grade, course=g_course, year=g_year)
         return results, results.count()
 
-    def get_passed_total(self, course, grade, year):
-        year, course = self.grade_search_logic(course, year)
-        results = [
-            instance for instance in self.filter(course=course, year=year) if instance.get_total_grades() >= grade
-        ]
-        return results, len(results)
-
     def get_avg_course_grades(self, course, year):
         year, course = self.grade_search_logic(course, year)
         grades = self.filter(year=year, course=course).all()
@@ -37,17 +30,12 @@ class GradeManager(models.Manager):
         grades_sum = sum([instacne.get_total_grades() for instacne in grades])
         return grades_sum / grades_count, grades_count, grades_sum
 
-    def get_precent(self, course, year, grade_to_pass):
-        _, all_count, all_sum = self.get_avg_course_grades(course, year)
-        results_sum, results_count = self.get_passed_total(course, grade_to_pass, year)
-        results_sum = sum(results_sum)
-        count_precent = (results_count / all_count) * 100
-        grades_precent = (results_sum / all_sum) * 100
-        return grades_precent, count_precent
 
-    def get_student_grades(self, student_id):
-        student = User.objects.filter(college_id=student_id).first()
-        grades = self.filter(student=student).all()
+    def get_student_grades(self, student_id,year):
+        from grades.models import Year
+        student = User.objects.get(college_id=student_id)
+        year= Year.objects.get(year=year)
+        grades = self.filter(student=student,year=year).all()
         return grades
 
 
@@ -55,23 +43,23 @@ class SemesterGradesManager(models.Manager):
     def search_sem_year(self, semester, year):
         from .models import Semester, Year
 
-        year = Year.objects.filter(year=year).first()
-        semester = Semester.objects.filter(semester=semester, year=year).first()
+        year = Year.objects.get(year=year)
+        semester = Semester.objects.get(semester=semester, year=year)
         return year, semester
 
     def get_student_semester_grades(self, student_id, semester, year):
         year, semester = self.search_sem_year(semester, year)
-        student = User.objects.filter(college_id=student_id).first()
+        student = User.objects.get(college_id=student_id)
         semester_grade = self.filter(year=year, semester=semester, student=student).first()
-        return semester_grade.calc_total, semester_grade.calc_gpa, semester_grade.grade_set.all()
+        return {'name':student.name,'total':semester_grade.calc_total()[-1], 'gpa':semester_grade.calc_gpa()}
 
     def get_semester_grades_avg(self, semester, year):
         year, semester = self.search_sem_year(semester, year)
         grades = self.filter(year=year, semester=semester).all()
         grades_count = grades.count()
-        grades_sum = sum(grade.calc_total for grade in grades)
-        gpa_avg = sum(grade.calc_gpa for grade in grades)
-        return grades_sum / grades_count, gpa_avg / grades_count, grades_count
+        grades_sum = sum(grade.calc_total()[-1] for grade in grades)
+        gpa_total = sum(grade.calc_gpa() for grade in grades)
+        return {'grade_avg':grades_sum / grades_count, 'gpa_avg':gpa_total / grades_count,'count': grades_count}
 
 
 class MidtermGradeManager(models.Manager):
@@ -79,8 +67,8 @@ class MidtermGradeManager(models.Manager):
         from .models import Year,Semester
         
         course = Course.objects.get(course_code=course_code)
-        year = Year.objects.filter(year=year).first()
-        semester = Semester.objects.filter(semester=semester,year=year).first()
+        year = Year.objects.get(year=year)
+        semester = Semester.objects.get(semester=semester,year=year)
         return course,year,semester
 
     def get_grades_gt(self,course_code,semester,year,mark):
@@ -101,17 +89,19 @@ class MidtermGradeManager(models.Manager):
 
 class QuizGradeManager(models.Manager):
     def get_quiz_avg(self, quiz_slug):
-        quiz = Quiz.objects.filter(slug=quiz_slug).first()
-        grades = self.filter(course=quiz.course, quiz=quiz).all()
+        quiz = Quiz.objects.get(slug=quiz_slug)
+        grades = self.filter(quiz=quiz).all()
         grades_count = grades.count()
         grades_sum = sum(grade.mark for grade in grades)
-        return (grades_sum / grades_count, grades_count, quiz.name)
+        return (grades_sum / grades_count, grades_count, quiz.name,grades_sum)
 
-    def get_course_avg(self, course_code):
-        course = Course.objects.filter(course_code=course_code).first()
-        grades = self.filter(course=course).all()
-        quizzes = [grade.quiz.slug for grade in grades]
-        return [self.get_quiz_avg(course.course_code, slug) for slug in quizzes]
+    def get_course_avg(self, course_code,year):
+        from grades.models import Year
+        course = Course.objects.get(course_code=course_code)
+        year = Year.objects.get(year=year)
+        grades = self.filter(course=course,year=year).all()
+        quizzes = set(grade.quiz.slug for grade in grades)
+        return sum(self.get_quiz_avg(slug)[-1] for slug in quizzes)/len(quizzes)
 
     def get_grades_under(self, quiz_slug, grade):
         quiz = Quiz.objects.filter(slug=quiz_slug).first()

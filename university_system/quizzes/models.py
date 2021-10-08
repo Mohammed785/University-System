@@ -21,7 +21,7 @@ class Quiz(models.Model):
         upload_to=PathAndRename("images\\quiz_images"), default="images\\quiz_images\\default.png"
     )
     slug = models.SlugField(max_length=5, null=True, blank=True, unique=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='quizzes')
     prof = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, limit_choices_to={"is_prof": True})
     objects = QuizManager()
 
@@ -44,8 +44,6 @@ class Quiz(models.Model):
     @property
     def get_end_time(self):
         return self.start + timedelta(minutes=self.duration)
-
-    # ERROR TypeError: can't compare offset-naive and offset-aware datetimes
 
     @property
     def is_open(self):

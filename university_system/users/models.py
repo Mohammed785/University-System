@@ -77,13 +77,12 @@ class User(UserAbstract):
     emergency_contact = models.CharField(max_length=12,null=True,blank=True)
     seat_number = models.PositiveSmallIntegerField(null=True,blank=True)
     is_prof = models.BooleanField(default=False)
-    # is_student = models.BooleanField(default=False)
 
     class Meta(UserAbstract.Meta):
         swappable = 'AUTH_USER_MODEL'
     
     def __str__(self):
-        return f'{self.name}' if self.is_prof else f'{self.name}/{self.college_id}' 
+        return f'{self.name}' if self.is_prof else f'Name:{self.name} ID:{self.college_id}' 
 
     @property
     def get_age(self):

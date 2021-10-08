@@ -1,15 +1,20 @@
 from rest_framework import serializers
-from courses.models import Course
+from courses.models import Course,Assignment,Announcement
 from grades.models import QuizGrade,Grade,SemesterGrade,MidtermGrade,AssignmentGrade
-from quizzes.models import Quiz
+from quizzes.models import Quiz,QuizQuestion,QuizQuestionChoices
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    professor=serializers.StringRelatedField(many=True)
+    students=serializers.StringRelatedField(many=True)
+    assignments = serializers.HyperlinkedRelatedField(view_name='assignment-detail',read_only=True,many=True,lookup_field='slug')
+    quizzes = serializers.HyperlinkedRelatedField(view_name='quiz-detail',read_only=True,many=True,lookup_field='slug')
+    announcements = serializers.HyperlinkedRelatedField(view_name='announcement-detail',read_only=True,many=True,lookup_field='slug')
     class Meta:
         model = Course
-        fields = []
+        fields = ['name','course_code','descreption','professor','students','quizzes','assignments','announcements']
 
-class SemesterSerializer(serializers.ModelSerializer):
+class SemesterGradeSerializer(serializers.ModelSerializer):
     total = serializers.SerializerMethodField('get_total')
     gpa = serializers.SerializerMethodField('get_gpa')
     semester = serializers.StringRelatedField()
@@ -23,13 +28,54 @@ class SemesterSerializer(serializers.ModelSerializer):
 
     def get_gpa(self,obj):
         return obj.calc_gpa()
+
+class QuizQuestionChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizQuestionChoices
+        fields= ['body','is_correct'] 
+class QuizQuestionSerializer(serializers.ModelSerializer):
+    choices = QuizQuestionChoiceSerializer(many=True,read_only=True)
+    class Meta:
+        model = QuizQuestion
+        fields = ['body','grade','choices']
+
 class QuizSerializer(serializers.ModelSerializer):
     start = serializers.DateTimeField(format='%m/%d/%Y, %H:%M')
     course = serializers.StringRelatedField()
     prof = serializers.StringRelatedField()
+    open = serializers.SerializerMethodField('is_open')
+    end_time = serializers.SerializerMethodField('get_end_time')
+    total_grade = serializers.SerializerMethodField('get_quiz_grade')
+    questions = QuizQuestionSerializer(many=True,read_only=True)
     class Meta:
         model = Quiz
-        fields = ['name','start','duration','quiz_image','course','prof']
+        fields = ['name','start','duration','end_time','open','course','prof','total_grade','questions']
+    
+    def is_open(self,obj):
+        return obj.is_open
+
+    def get_end_time(self,obj):
+        endtime=obj.get_end_time
+        return endtime.strftime('%m/%d/%Y, %H:%M')
+
+    def get_quiz_grade(self,obj):
+        return obj.get_quiz_grade
+
+class AssignmentSerializer(serializers.ModelSerializer):
+    course = serializers.StringRelatedField()
+    professor = serializers.StringRelatedField()
+    deadline = serializers.DateTimeField(format='%m/%d/%Y, %H:%M')
+    upload_date = serializers.DateTimeField(format='%m/%d/%Y, %H:%M')
+    class Meta:
+        model = Assignment
+        fields = ['deadline','max_mark','notes','upload_date','professor','course','slug']
+class AnnouncementSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()
+    date_posted = serializers.DateTimeField(format='%m/%d/%Y, %H:%M')
+    course = serializers.StringRelatedField()
+    class Meta:
+        model = Announcement
+        fields = ['body','date_posted','author','course','public']
 
 class MidtermGradeSerializer(serializers.ModelSerializer):
     year = serializers.StringRelatedField()
@@ -40,7 +86,7 @@ class MidtermGradeSerializer(serializers.ModelSerializer):
         model = MidtermGrade
         fields = ['mark','year','course','student','semester']
 
-class AssignmentSerializer(serializers.ModelSerializer):
+class AssignmentGradeSerializer(serializers.ModelSerializer):
     course = serializers.StringRelatedField()
     student = serializers.StringRelatedField()
     assignment = serializers.StringRelatedField()
@@ -55,3 +101,15 @@ class QuizGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizGrade
         fields = ['mark','student','course','quiz']
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    midterm = MidtermGradeSerializer(many=True,read_only=True)
+    assignment = AssignmentGradeSerializer(many=True,read_only=True)
+    quiz = QuizGradeSerializer(many=True,read_only=True)
+    student = serializers.StringRelatedField()
+    course = serializers.StringRelatedField()
+    year = serializers.StringRelatedField()
+    class Meta:
+        model = Grade
+        fields = ['final','other','student','course','year','midterm','assignment','quiz']

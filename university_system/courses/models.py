@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
 from users.utils import slug_generator, PathAndRename, image_resize
 from .managers import AssignmentManager,AnnouncementManager
 
@@ -14,7 +15,7 @@ class Course(models.Model):
     course_image = models.ImageField(
         upload_to=PathAndRename("images\\course_images"),default="images\\course_images\\default.png"
     )
-    course_code = models.CharField(max_length=6,unique=True,null=True,blank=True)
+    course_code = models.CharField(verbose_name='Course Code',max_length=6,unique=True,null=True,blank=True)
     descreption = RichTextField(null=True,blank=True)
     slug = models.SlugField(max_length=5, null=True, blank=True,unique=True)
 
@@ -42,13 +43,14 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
+    name = models.CharField(max_length=60)
     file = models.FileField(upload_to='docs\\assignments')
     deadline = models.DateTimeField(null=True, blank=True)
     max_mark = models.PositiveSmallIntegerField(null=True,blank=True)
     notes = models.CharField(max_length=150,null=True,blank=True)
     upload_date = models.DateTimeField(auto_now_add=True)
     professor = models.ForeignKey(User, on_delete=models.CASCADE,limit_choices_to={'is_prof':True})
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='assignments')
     slug = models.SlugField(max_length=5,null=True,blank=True,unique=True)
     objects = AssignmentManager()
 
@@ -81,7 +83,7 @@ class Assignment(models.Model):
 class CourseFiles(models.Model):
     file = models.FileField(upload_to='docs\\files')
     upload_date = models.DateTimeField(auto_now_add=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='course_files')
     uploader = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     slug = models.SlugField(max_length=5, null=True, blank=True,unique=True)
 
@@ -104,12 +106,12 @@ class CourseFiles(models.Model):
 
 
 class Announcement(models.Model):
-    body = models.TextField(verbose_name="Announcement", null=True, blank=True)
+    body = RichTextUploadingField(verbose_name="Announcement", null=True, blank=True)
     public = models.BooleanField(default=False)
     date_posted = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(max_length=5, null=True, blank=True,unique=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE,limit_choices_to={'is_prof':True})
-    course = models.ForeignKey(Course, on_delete=models.CASCADE,blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,blank=True,related_name='announcements')
     objects = AnnouncementManager()
 
     class Meta():

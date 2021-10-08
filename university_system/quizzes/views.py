@@ -3,7 +3,7 @@ from django.views.generic import DeleteView,UpdateView,ListView
 from django.contrib.auth.mixins import UserPassesTestMixin,LoginRequiredMixin
 from django.http import HttpResponse
 from django.contrib import messages
-from .models import Course, Quiz, QuizQuestion, QuizQuestionChoices,StudentQuizAnswers
+from .models import Course, Quiz, QuizAttempts, QuizQuestion, QuizQuestionChoices,StudentQuizAnswers
 from .forms import CreateQuizForm, CreateQuizQuestionChoices, CreateQuizQuestionForm,AnswerQuizForm
 from itertools import zip_longest
 
@@ -33,7 +33,7 @@ def quiz_answer_view(request,slug):
 
 def review_quiz_view(request,slug):
     # i will shw stats using a button when user click it show send request to api to show info
-    quiz = Quiz.objects.filter(slug=slug).first()
+    quiz = Quiz.objects.get(slug=slug)
     questions = quiz.questions.all()
     choices = [question.choices.all() for question in questions]
     q_a = list(zip(questions,choices))
@@ -45,16 +45,14 @@ def review_quiz_view(request,slug):
 
 
 def take_quiz_view(request,slug):
-    quiz = Quiz.objects.filter(slug=slug).first()
-    form = AnswerQuizForm(questions=quiz.questions.all())
+    quiz = Quiz.objects.get(slug=slug)
     if not quiz.is_open:
-        # if form.data:
-        #     form = AnswerQuizForm(data=request.POST,questions=quiz.questions.all(),user=request.user)
-        #     if form.is_valid():
-        #         attemp=form.save()
-        #         attemp.quiz=quiz
-        #         attemp.save()
+        messages.info(request,'Quiz Is Closed')
         return redirect('home')
+    if QuizAttempts.get(quiz=quiz,student=request.user):
+        messages.info(request,'You Have Already Answered This Quiz')
+        return redirect('home')        
+    form = AnswerQuizForm(questions=quiz.questions.all())
     if request.method == 'POST':
         """try to find a way insted of this a way that really help
         when the time end the form auto submit an save his answers"""

@@ -129,11 +129,12 @@ class QuizGrade(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="quiz_grade")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="quiz_grade")
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name="quiz")
+    year = models.ForeignKey(Year,on_delete=models.CASCADE,related_name='quiz_grade')
     objects = QuizGradeManager()
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "quiz"], name="one_grade")]
-
+        
     def __str__(self):
         return f"{self.student.college_id} grade:{self.grade}"
 
