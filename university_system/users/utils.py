@@ -61,9 +61,3 @@ def get_current_semester():
     if month in [10,11,12,1]:return '1ST'
     elif month in [3,4,5,6]:return '2ND'
 
-# def rename_file(path):
-#     def wrapper(instance, filename):
-#         ext = filename.split('.')[-1]
-#         filename = f'{uuid4().hex}.{ext}'
-#         return os.path.join(path, filename)
-#     return wrapper

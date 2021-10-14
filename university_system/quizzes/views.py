@@ -1,13 +1,12 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from django.views.generic import DeleteView,UpdateView,ListView
+from django.views.generic import DeleteView,UpdateView
 from django.contrib.auth.mixins import UserPassesTestMixin,LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseNotFound
 from django.contrib import messages
 from .models import Course, Quiz, QuizAttempts, QuizQuestion, QuizQuestionChoices,StudentQuizAnswers
 from .forms import CreateQuizForm, CreateQuizQuestionChoices, CreateQuizQuestionForm,AnswerQuizForm
 from itertools import zip_longest
 
-#TODO in create choice form add a check in form valid to make sure that there only one right answer
 
 def show_course_quizzes(request,slug):
     course = get_object_or_404(Course,slug=slug)
@@ -18,21 +17,21 @@ def show_course_quizzes(request,slug):
     }
     return render(request,'quiz/course_quizzes.html',context=context)
 
-#try to make a view to view student last attemp and show his answer and the right answer
 def quiz_answer_view(request,slug):
     quiz = Quiz.objects.filter(slug=slug).first()
     student_answers = StudentQuizAnswers.objects.filter(quiz=quiz).all()
+    attemp = QuizAttempts.objects.get(students=request.user,quiz=quiz)
     q_a = list(zip_longest(quiz.questions.all(),student_answers))
     context = {
         'quiz':quiz,
         'answers':student_answers,
-        'qa':q_a
+        'qa':q_a,
+        'attemp':attemp
     }
     return render(request,'quiz/show_answer.html',context=context)
 
 
 def review_quiz_view(request,slug):
-    # i will shw stats using a button when user click it show send request to api to show info
     quiz = Quiz.objects.get(slug=slug)
     questions = quiz.questions.all()
     choices = [question.choices.all() for question in questions]
@@ -45,11 +44,18 @@ def review_quiz_view(request,slug):
 
 
 def take_quiz_view(request,slug):
-    quiz = Quiz.objects.get(slug=slug)
+    try:
+        quiz = Quiz.objects.get(slug=slug)
+        attemp =QuizAttempts.objects.get(quiz=quiz,students=request.user)
+    except Quiz.DoesNotExist:
+        raise HttpResponseNotFound()
+    except QuizAttempts.DoesNotExist:
+        attemp = False
     if not quiz.is_open:
         messages.info(request,'Quiz Is Closed')
         return redirect('home')
-    if QuizAttempts.get(quiz=quiz,student=request.user):
+
+    if attemp:
         messages.info(request,'You Have Already Answered This Quiz')
         return redirect('home')        
     form = AnswerQuizForm(questions=quiz.questions.all())

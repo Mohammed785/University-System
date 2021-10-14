@@ -21,7 +21,7 @@ class Course(models.Model):
 
     class Meta():
         indexes =[
-            models.Index(name='code_index',fields=['course_code'])#re check this
+            models.Index(name='code_index',fields=['course_code'])
         ]
 
     def save(self, *args, **kwargs):
@@ -130,3 +130,47 @@ class Announcement(models.Model):
 
     def get_absolute_url(self):
         return reverse('announcement-view',kwargs={'slug':self.slug})
+
+
+class Questions(models.Model):
+    body = models.TextField()
+    course = models.ForeignKey(Course,on_delete=models.CASCADE)
+    date_posted = models.DateTimeField(auto_now_add=True,blank=True)
+    edited = models.BooleanField(default=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='questions')
+    slug = models.SlugField(max_length=5, null=True, blank=True,unique=True)
+    
+    class Meta():
+        constraints = [
+            models.UniqueConstraint(fields=['body','course'],name='non_repeating_course_question')
+        ]
+        indexes = [models.Index(fields=['slug'],name='course_question_idx')]
+
+    def __str__(self):
+        return self.body
+
+    def save(self, *args, **kwargs):
+        if not self.slug:self.slug = slug_generator(self)
+        return super().save(*args, **kwargs)
+
+
+class Answers(models.Model):
+    body = models.TextField()
+    date_posted = models.DateTimeField(auto_now_add=True,blank=True)
+    edited = models.BooleanField(default=False)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Questions,on_delete=models.CASCADE)
+    slug = models.SlugField(max_length=5, null=True, blank=True,unique=True)
+
+    class Meta():
+        constraints = [
+            models.UniqueConstraint(fields=['body','question'],name='non_repeating_answer')
+        ]
+        indexes = [models.Index(fields=['slug'],name='answer_idx')]
+    def __str__(self):
+        return self.body
+
+    def save(self, *args, **kwargs):
+        if not self.slug:self.slug = slug_generator(self)
+        return super().save(*args, **kwargs)

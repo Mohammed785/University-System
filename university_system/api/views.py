@@ -1,13 +1,14 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,parser_classes
 from rest_framework.response import Response
-from rest_framework import exceptions
+from rest_framework import exceptions,status
+from rest_framework.parsers import FormParser
 from grades.models import Grade,SemesterGrade,Semester,Year,MidtermGrade,QuizGrade,AssignmentGrade
-from courses.models import Course,Assignment,Announcement
+from courses.models import Course,Assignment,Announcement,Answers,Questions
 from quizzes.models import Quiz
 from .serializers import (AnnouncementSerializer, AssignmentGradeSerializer, AssignmentSerializer, 
-                                            MidtermGradeSerializer,CourseSerializer, QuizGradeSerializer, 
-                                            QuizSerializer, SemesterGradeSerializer,GradeSerializer
+                                            MidtermGradeSerializer,CourseSerializer, QuizGradeSerializer,QuizSerializer, 
+                                            SemesterGradeSerializer,GradeSerializer,QuestionsSerializer,AnswersSerializer
                                         )
 from users.decorators import check_anonymous,check_prof_previlage
 
@@ -36,8 +37,6 @@ def gradeview(request,course_code):
     }
     return Response(data=data)
 
-def gradeView(request):
-    return render(request,'grade/gradeview.html')
 
 @api_view(['GET'])
 @check_anonymous
@@ -48,14 +47,12 @@ def course_quizzes_grade_api(request,course_code):
         grades = {quiz.name:Quiz.objects.get_student_grade(quiz,request.user) for quiz in quizzes}
     except (Course.DoesNotExist,Quiz.DoesNotExist):
         raise exceptions.NotFound
-    data = {#try to do it in one dict compre
+    data = {
         'labels':grades.keys(),
         'data':grades.values(),
     }
     return Response(data=data)
 
-def course_quizzes_grade_view(request):
-    return render(request,'grade/quizgrade.html')
 
 @api_view(['GET'])
 @check_anonymous
@@ -193,8 +190,8 @@ def quiz_grades_detail_api(request,slug):
     return Response(data=data)
 
 @api_view(['GET'])
-# @check_anonymous
-# @check_prof_previlage
+@check_anonymous
+@check_prof_previlage
 def quiz_grade_search_api(request,slug,mark,type):
     try:
         if type.lower()=='greater':
@@ -297,3 +294,107 @@ def get_student_grades(request,student_id,year):
 def check_quiz_time_api(request,slug):
     quiz= Quiz.objects.get(slug=slug)
     return Response(data=quiz.is_open)
+
+#TEST:Below views
+
+@api_view(['GET'])
+# @check_anonymous
+def course_questions(request,course_code):
+    course = Course.objects.get(course_code=course_code)
+    questions = Questions.objects.filter(course=course).all()
+    data = QuestionsSerializer(questions,many=True)
+    count = questions.count()
+    return Response(data={"data":data.data,'count':count})
+
+@api_view(['GET'])
+# @check_anonymous
+def student_questions(request):
+    questions = Questions.objects.filter(author=request.user).all()
+    data = QuestionsSerializer(questions,many=True)
+    count = questions.count()
+    return Response(data={"data":data.data,'count':count})
+
+@api_view(['POST'])
+@check_anonymous
+def create_question(request,course_code):
+    course = Course.objects.get(course_code=course_code)
+    question = Questions(course=course,author=request.user)
+    serializer = QuestionsSerializer(question,data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@check_anonymous
+def update_question(request,slug):
+    question = Questions.objects.get(slug=slug)
+    question.edited =  True
+    serializer = QuestionsSerializer(question,data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@check_anonymous
+def delete_question(request,slug):
+    try:
+        question = Questions.objects.get(slug=slug)
+        question.delete()
+    except Questions.DoesNotExist:
+        return Response("Question Not Found",status=status.HTTP_404_NOT_FOUND)
+    return Response("Question Deleted",status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@check_anonymous
+def get_answers(request):
+    try:
+        answers = Answers.objects.filter(author=request.user).all()
+        count = answers.count()
+    except Answers.DoesNotExist:
+        return exceptions.NotFound
+    data = {
+        'data':AnswersSerializer(answers,many=True).data,
+        'count':count
+    }
+    return Response(data=data)
+
+@api_view(['POST'])
+@check_anonymous
+def create_answer(request,question_slug):
+    try:
+        question = Questions.objects.get(slug=question_slug)
+    except Questions.DoesNotExists:
+        return exceptions.NotFound
+    answer = Answers(author=request.user,question=question)
+    serializer = AnswersSerializer(answer,data=request.data)
+    if serializer.is_valid():
+        answer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+@check_anonymous
+def update_answer(request,slug):
+    try:
+        answer = Answers.objects.get(slug=slug)
+        answer.edited = True
+    except Answers.DoesNotExist:
+        return Response("Answer Not Found",status=status.HTTP_404_NOT_FOUND)
+    serializer = QuestionsSerializer(answer,data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@check_anonymous
+def delete_answer(request,slug):
+    try:
+        answer = Answers.objects.get(slug=slug)
+        answer.delete()
+    except Answers.DoesNotExist:
+        return Response("Answer Not Found",status=status.HTTP_404_NOT_FOUND)
+    return Response("Answer Deleted",status=status.HTTP_200_OK)

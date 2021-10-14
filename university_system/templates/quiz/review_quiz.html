@@ -11,10 +11,9 @@
     <h1>{{q.body|safe}}</h1>
     <ul>
 {%for c in a%}
-    <li>{{c.body}}</li>
+    <li>{{c.body|safe}}/{{c.count}}</li>
     {%endfor%}
     </ul>
-    
     <br>
     {%endfor%}
 </body>

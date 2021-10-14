@@ -36,7 +36,7 @@ class Quiz(models.Model):
         if not self.slug:
             self.slug = slug_generator(self)
         super().save(*args, **kwargs)
-        image_resize(self.quiz_images.path)
+        image_resize(self.quiz_image.path)
 
     def get_absolute_url(self):
         return reverse("create-quiz-question", kwargs={"slug": self.slug})
@@ -126,12 +126,15 @@ class QuizQuestionChoices(models.Model):
     def get_author(self):
         return self.question.get_author
 
+    @property
+    def get_count(self):
+        return self.student_ans.count()
 
 class StudentQuizAnswers(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"is_prof": False})
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE,related_name='student_answers')
-    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)#i think question and choice should be one to one rel
-    choice = models.ForeignKey(QuizQuestionChoices, on_delete=models.CASCADE)
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
+    choice = models.ForeignKey(QuizQuestionChoices, on_delete=models.CASCADE,related_name='student_ans')
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "question"], name="one_answer_only")]

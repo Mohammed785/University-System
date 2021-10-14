@@ -1,3 +1,4 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +15,7 @@
     </style>
 </head>
 <body>
-    <form action="" method="POST">
+    <form action="" id='myform' method="POST">
         {%csrf_token%}
         {%for question in form.questions%}
 
@@ -30,5 +31,24 @@
         {%endfor%}
         <button type="submit">Submit</button>
     </form>
+    <script src="{%static 'js/jquery-3.3.1.min.js'%}"></script>
+    <script>
+        endpoint = '/quiz/{{quiz.slug}}/time/';
+        function check_time() {
+            $.ajax({
+            method:'GET',
+            url:endpoint,
+            success:data=>{
+                console.log(data)
+                if (data==false){
+                    document.getElementById('myform').submit();
+                    clearInterval(countTime);
+                }
+            }
+        })
+        }
+        countTime=setInterval(check_time,1000);
+        check_time();
+    </script>
 </body>
 </html>
