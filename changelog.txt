@@ -1,14 +1,8 @@
 [NOTE:12:17 AM 9/6/2021]:Don't Forget to write gpa func in semister grade
 
-[WISH:3:27 AM 9/7/2021]:makin folder system like teams
-
-[PLAN:11:36 PM 9/8/2021]:show quiz by year semsiter course
-
 [MUST:11:52 PM 9/8/2021]:use django filters
 
 [TODO:12:10 AM 9/9/2021]:upvote and downvote to detemine if course file will be stays-- use signals or (*use calary to check if downvote passed the limit to delete file)
-
-[IDEA:5:29 PM 9/14/2021]:add how many student choiced an answer
 
 [NOTE:7:10 PM 9/15/2021]:the main page of course will contain the grades chart for the course (student) for teacher it will have the charts for passsed and student counts and some other shit
 
@@ -16,14 +10,20 @@
 
 [CHANGE:9/28/2021 6:05:41 PM]:make charts look better
 
-[COOL:9/29/2021 6:33:36 PM]:create A music Player
-
 [DB:9/29/2021 7:40:27 PM] ADD attendance with student field and course field and date
-
-[IDEA:10/1/2021 1:50:18 PM] use async to fix quiz time check issue or in js use api to check if it finished
 
 [IDEA:10/3/2021 2:22:01 PM]create a count down timer for quizzes time and assignment deadline
 
 [CHANGE:10/4/2021 7:09:28 PM]add a slug to every grade to make it easy to query it that will help
 
 [IDEA:10/6/2021 2:54:52 PM]for grade gt&lt how about make like a folded list  when user click it show the res for saving time
+
+[IDEA:10/8/2021 5:15:25 PM]Insted of submitng the form when quiz time finish just block him from answering more change form to read-only (add class to hide it)
+
+[IDEA:10/14/2021 8:11:56 PM] use js to send the put and delete requests by preventing the default
+
+[TODO:] add query params to every list view
+
+[IDEA:]insted of create update and delete assignments create 
+
+[MUST:] change all delete class based view with functions
