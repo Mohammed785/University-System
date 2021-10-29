@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<h1>Logged Out</h1>
-</body>
-</html>
+{%extends 'auth/auth.html'%}
+{%block title%}Login{%endblock%}
+{%block content%}
+<div class="content" style="max-width: max-content;margin: 30% auto;">
+    <h1 class="" style="color: #fff;">You Have Been Logged Out Successfully<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Come Back Soon.</h1>
+</div>
+{%endblock%}

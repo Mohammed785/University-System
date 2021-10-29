@@ -14,6 +14,6 @@ def delete_old_avatar(sender,instance,**kwargs):
         return False
     
     new_image = instance.avatar
-    if not new_image==old_image:
+    if not new_image==old_image and old_image.filename!='default.png':
         if os.path.isfile(old_image.path):
             os.remove(old_image.path)

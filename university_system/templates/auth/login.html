@@ -1,16 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <form action="" method="POST">
-            {% csrf_token %}
-        {{form}}
-        <button type="submit">Login</button>
-    </form>
-</body>
-</html>
+{%extends 'auth/auth.html'%}
+{%block title%}Login{%endblock%}
+{%load widget_tweaks%}
+
+{%block content%}
+<div class="content">
+<div class="page-content">
+<form id="login-form" method="POST">
+    {% csrf_token %}
+    <h2 class="login-title" style="text-align: center;font-weight: 600;font-size: 3rem;">Log In</h2>
+    {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+            <div class="alert alert-danger alert-bordered alret-dismissable fade show">
+                <button class="close" data-dismiss="alert" aria-label="Close">×</button>
+                {{error}}
+            </div>
+        {%endfor%}
+    {%endfor%}
+    <div class="form-group">
+        <div class="input-group-icon right">
+            <div class="input-icon"><i class="fa fa-envelope"></i></div>
+            <input class="form-control" type="email" required name="username" id="id_username" placeholder="Email">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group-icon right">
+            <div class="input-icon"><i class="fa fa-lock font-16"></i></div>
+            <input class="form-control" type="password" id="id_password" required name="password" placeholder="Password"
+                autocomplete="on">
+        </div>
+    </div>
+    <div class="form-group d-flex justify-content-between">
+        <label class=""><span class="input-span"></span></label>
+        <a href="{%url 'passsword-reset'%}">Forgot password?</a>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-info btn-block" type="submit">Login</button>
+    </div>
+    <div class="text-center">Not a member?
+        <a class="color-blue" href="{%url 'register'%}">Create accaunt</a>
+    </div>
+</form>
+</div>
+</div>
+{%endblock%}

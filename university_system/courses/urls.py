@@ -1,24 +1,25 @@
 from django.urls import path
-from .views import (course_view,create_assignment,create_announcement,download_file,add_course_file,
-            ViewCourseAnnouncement,ViewCourseAssignment,UpdateAnnouncementView,UpdateAssignmentView,
-            DeleteAnnouncementView,DeleteAssignmentView,DeleteCourseFileView,AnnouncementView,CourseFilesView,ViewAssignment
+from .views import (
+    courses_list,course_view,download_file,course_announcements,course_assignments,assignment_update,announcement_update,
+    delete_announcement,delete_assignment,delete_course_file,course_files_view,course_questions,delete_question,delete_answer,
+    question_update
 )
 
 
 urlpatterns = [
-    path('course/<slug:slug>/', course_view, name='course-view'),
-    path('course/<slug:slug>/assignment/create/',create_assignment,name='create-assignment'),
-    path('course/<slug:slug>/announcement/create/',create_announcement,name='create-announcement'),
-    path('course/<slug:slug>/file/upload/',add_course_file,name='add-course-file'),
-    path('download/<filepath>/',download_file,name='download-file'),
-    path('announcement/<slug:slug>/',AnnouncementView.as_view(template_name='course/announcement_view.html'),name='announcement-view'),
-    path('course/<slug:slug>/announcements/',ViewCourseAnnouncement.as_view(template_name='course/course_announcements.html'),name='course-announcements'),
-    path('course/<slug:slug>/assignments/',ViewCourseAssignment.as_view(template_name='course/course_assignments.html'),name='course-assignments'),
-    path('announcement/<slug:slug>/update/',UpdateAnnouncementView.as_view(template_name='course/announcement_update.html'),name='update-announcements'),
-    path('course/assignment/<slug:slug>/update/',UpdateAssignmentView.as_view(template_name='course/assignment_update.html'),name='update-assignment'),
-    path('course/announcement/<slug:slug>/delete/',DeleteAnnouncementView.as_view(template_name='course/announcement_delete.html'),name='delete-announcement'),
-    path('course/assignment/<slug:slug>/delete/',DeleteAssignmentView.as_view(template_name='course/assignment_delete.html'),name='delete-assignment'),
-    path('course/file/<slug:slug>/delete/',DeleteCourseFileView.as_view(template_name='course/delete_file.html'),name='delete-course-file'),
-    path('course/<slug:slug>/files',CourseFilesView.as_view(template_name='course/course_files.html'),name='course-files-view'),
-    path('assignment/<slug:slug>/view',ViewAssignment.as_view(),name='assignment-view')
+    path("courses/", courses_list, name="courses-list"),
+    path("course/<course_code>/", course_view, name="course-view"),
+    path("course/<course_code>/questions/", course_questions, name="course-questions"),
+    path("course/<course_code>/announcements/", course_announcements, name="course-announcements"),
+    path("course/<course_code>/assignments/", course_assignments, name="course-assignments"),
+    path('course/assignment/<slug:slug>/update/',assignment_update,name='assignment-update'),
+    path("course/announcement/<slug:slug>/update/",announcement_update,name='announcement-update'),
+    path("course/question/<slug:slug>/update/",question_update,name='question-update'),
+    path("course/announcement/<slug:slug>/delete/", delete_announcement, name="delete-announcement"),
+    path("course/assignment/<slug:slug>/delete/", delete_assignment, name="delete-assignment"),
+    path("course/file/<slug:slug>/delete/", delete_course_file, name="delete-course-file"),
+    path('course/question/<slug:slug>/delete/',delete_question,name='delete-question'),
+    path('course/answer/<slug:slug>/delete/',delete_answer,name='delete-answer'),
+    path("course/<course_code>/files/", course_files_view, name="course-files"),
+    path("download/<filepath>/", download_file, name="download-file"),
 ]

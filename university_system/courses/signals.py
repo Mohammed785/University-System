@@ -1,7 +1,7 @@
 from django.db.models.signals import pre_save, post_delete
 from django.dispatch import receiver
 import os
-from .models import Assignment,CourseFiles
+from .models import Assignment, CourseFiles
 
 
 @receiver(post_delete, sender=CourseFiles)

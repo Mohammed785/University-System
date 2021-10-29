@@ -9,3 +9,4 @@ uuid==1.30
 django-debug-toolbar==3.2.2
 django-ckeditor==6.1.0
 django-filter==2.4.0
+django-widget-tweaks==1.4.9

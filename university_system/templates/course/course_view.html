@@ -1,0 +1,24 @@
+{%extends 'index.html'%}
+{%block title%}Course{%endblock%}
+{%load static%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-body">
+        <div class="clf">
+            {%include 'course/course_tab.html'%}
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="tab-11-1">
+                    <div class="card">
+                        <img class="card-img-top" style="height: 600px;" src="{{course.course_image.url}}">
+                        <div class="card-body"  style="font-size: 35px;">
+                            <p class="card-text">
+                              {{course.description|safe}}  
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

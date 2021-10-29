@@ -21,7 +21,11 @@ class AnswerQuizForm(forms.Form):
         grade, _ = Grade.objects.get_or_create(student=self.user, course=self.questions.first().quiz.course, year=year)
 
         quiz_grade, _ = QuizGrade.objects.get_or_create(
-            quiz=self.questions.first().quiz, student=self.user, grade=grade, course=self.questions.first().quiz.course
+            quiz=self.questions.first().quiz,
+            student=self.user,
+            grade=grade,
+            course=self.questions.first().quiz.course,
+            year=year,
         )
         for ans in self.cleaned_data:
             question = QuizQuestion.objects.get(pk=int(ans))
@@ -40,7 +44,7 @@ class CreateQuizForm(forms.ModelForm):
 
     class Meta:
         model = Quiz
-        fields = ["name", "start", "duration", "quiz_image"]
+        fields = ["name", "start", "duration"]
 
 
 class CreateQuizQuestionForm(forms.ModelForm):

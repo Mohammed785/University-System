@@ -1,0 +1,20 @@
+{%extends 'auth/auth.html'%}
+{%block title%}Reset Password Confirm{%endblock%}
+{%block content%}
+<div class="content">
+    <form id="forgot-confirm-form" method="POST">
+        {%csrf_token%}
+        <h3 class="m-t-10 m-b-10">Reset Password</h3>
+        <p class="m-b-20">Enter your new password.</p>
+        <div class="form-group">
+            <input class="form-control" type="password" id="id_password1" name="password1" placeholder="New Password">
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="password" id="id_password2" name="password2" placeholder="Confirm Password">
+        </div>
+        <div class="form-group">
+            <button class="btn btn-info btn-block" type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+{%endblock%}

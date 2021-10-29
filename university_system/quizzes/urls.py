@@ -1,38 +1,22 @@
 from django.urls import path
 from .views import (
-    create_question_choice,create_quiz,create_quiz_question,show_course_quizzes,UpdateChoiceView,
-    UpdateQuestionView,UpdateQuizView,DeleteChoiceView,DeleteQuestionView,
-    DeleteQuizView,take_quiz_view,quiz_answer_view,review_quiz_view,
+    create_question_choice,create_quiz,create_quiz_question,CourseQuizzesView,update_question_choice,
+    update_question,update_quiz,delete_choice,delete_question,
+    delete_quiz,take_quiz_view,quiz_answer_view,review_quiz_view,
 )
 
 urlpatterns = [
-    path("quiz/<slug:slug>/create/", create_quiz, name="create-quiz"),
+    path("course/<course_code>/quiz/create/", create_quiz, name="create-quiz"),
     path("quiz/<slug:slug>/question/create/", create_quiz_question, name="create-quiz-question"),
     path("question/<slug:slug>/choice/create/", create_question_choice, name="create-q-choice"),
-    path("quiz/<slug:slug>/update/", UpdateQuizView.as_view(template_name="quiz/update_quiz.html"), name="quiz-update"),
-    path("quiz/<slug:slug>/delete/", DeleteQuizView.as_view(template_name="quiz/delete_quiz.html"), name="quiz-delete"),
+    path("quiz/<slug:slug>/update/", update_quiz, name="quiz-update"),
     path("quiz/<slug>/", take_quiz_view, name="quiz-view"),
     path("quiz/<slug:slug>/answers/", quiz_answer_view, name="quiz-answers-view"),
-    path("quiz/<slug>/review", review_quiz_view, name="quiz-review"),
-    path("course/<slug:slug>/quizzes/",show_course_quizzes,name="course-quizzes"),
-    path(
-        "question/<slug:slug>/update/",
-        UpdateQuestionView.as_view(template_name="quiz/update_question.html"),
-        name="quiz-q-update"
-    ),
-    path(
-        "question/<slug:slug>/delete/",
-        DeleteQuestionView.as_view(template_name="quiz/delete_question.html"),
-        name="quiz-q-delete"
-    ),
-    path(
-        "choice/<slug:slug>/update/",
-        UpdateChoiceView.as_view(template_name="quiz/choice_update.html"),
-        name="question-c-update"
-    ),
-    path(
-        "choice/<slug:slug>/delete/",
-        DeleteChoiceView.as_view(template_name="quiz/choice_delete.html"),
-        name="question-c-delete"
-    )
+    path("quiz/<slug:slug>/review/", review_quiz_view, name="quiz-review"),
+    path("course/<course_code>/quizzes/",CourseQuizzesView.as_view(),name="course-quizzes"),
+    path("question/<slug:slug>/update/",update_question,name="quiz-q-update"),
+    path("choice/<slug:slug>/update/",update_question_choice,name="question-c-update"),
+    path("question/<slug:slug>/delete/",delete_question,name="quiz-q-delete"),
+    path("quiz/<slug:slug>/delete/", delete_quiz, name="quiz-delete"),
+    path("choice/<slug:slug>/delete/",delete_choice,name="question-c-delete")
 ]

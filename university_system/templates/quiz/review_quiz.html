@@ -1,20 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    {%for q,a in q_a%}
-    <h1>{{q.body|safe}}</h1>
-    <ul>
-{%for c in a%}
-    <li>{{c.body|safe}}/{{c.count}}</li>
-    {%endfor%}
-    </ul>
-    <br>
-    {%endfor%}
-</body>
-</html>
+{%extends 'index.html'%}
+{%block title%}Quiz Review{%endblock%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-head" style="justify-content: center;">
+        <div class="ibox-title" style="text-transform: capitalize;">
+            Quiz Name:{{quiz.name}} total Grades:{{total}} students Count:{{count}} average:{{avg}}
+        </div>
+    </div>
+    <div class="ibox-body">
+        {%for q,a in q_a%}
+        <div style="display: flex;justify-content: space-between;align-items: baseline;">
+            <h3>{{q.body|safe}}</h3>
+            <div>
+                <a href="{%url 'create-q-choice' q.slug%}" class="btn btn-outline-success btn-rounded btn-sm">Add Choice</a>
+                <a href="{%url 'quiz-q-update' q.slug%}" class="btn btn-outline-primary btn-rounded btn-sm">Edit Question</a>
+                <a href="{%url 'quiz-q-delete' q.slug%}" class="btn btn-outline-danger btn-rounded btn-sm">Delete Question</a>
+            </div>
+        </div>
+        <ul>
+            {%for c in a%}
+                <li>
+                    <div style="display: flex;justify-content: space-between;align-items: baseline;">
+                    <h6>{{c.body|safe}} <span class="badge badge-info badge-circle m-r-5 m-b-5">{{c.get_count}}</span></h6>
+                    <div>
+                        <a href="{%url 'question-c-update' c.slug%}" class="btn btn-outline-primary btn-circle btn-xs" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Edit Choice"><i class="fa fa-pencil"></i></a>
+                        <a href="{%url 'question-c-delete' c.slug%}" class="btn btn-outline-danger btn-circle btn-xs" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete Choice"><i class="fa fa-times"></i></a>
+                    </div>
+                    </div>
+                </li>
+            {%endfor%}
+        </ul>
+        <hr>
+        {%endfor%}
+        </ul>
+        <a href="{%url 'create-quiz-question' quiz.slug%}" class="btn btn-info">Add Question</a>
+        <a href="{%url 'course-quizzes' quiz.course.course_code%}" class="btn btn-info">Return</a>
+    </div>
+</div>
+{%endblock%}

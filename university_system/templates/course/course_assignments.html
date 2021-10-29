@@ -1,0 +1,128 @@
+{%extends 'index.html'%}
+{%block title%}Course Assignments{%endblock%}
+{%load static%}
+{%load widget_tweaks%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-body">
+        <div class="clf">
+            {%include 'course/course_tab.html'%}
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                    {%if user.is_prof%}
+                    <form class="form-horizontal" method="POST" enctype="multipart/form-data">
+                        {%csrf_token%}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-bordered alret-dismissable fade show">
+                            <button class="close" data-dismiss="alert" aria-label="Close">×</button>
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% for field in form.visible_fields %}
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">{{field.label_tag}}</label>
+                            <div class="col-sm-10">
+                                {%if form.is_bound%}
+                                {%if field.errors%}
+                                {%render_field field class="form-control is-invalid"%}
+                                {%for error in field.errors%}
+                                    <div class="invalid-feedback">
+                                        {{ error }}
+                                    </div>
+                                {%endfor%}
+                                {%else%}
+                                {% render_field field class="form-control is-valid" %}
+                                {%endif%}
+                                {%else%}
+                                {% render_field field class="form-control" %}
+                                {%endif%}
+                                {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {%endfor%}
+                        <div class="form-group row">
+                            <div class="col-sm-10 ml-sm-auto">
+                                <button class="btn btn-info" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    {%endif%}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Deadline</th>
+                                    <th>Grade</th>
+                                    <th>Notes</th>
+                                    <th>File Size</th>
+                                    <th>Professor</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {%for assignment in assignments%}
+                                <tr>
+                                    <td>{{assignment.name}}</td>
+                                    <td>{{assignment.deadline}}</td>
+                                    <td>{{assignment.get_max_mark}}</td>
+                                    <td>{{assignment.get_notes}}</td>
+                                    <td>{{assignment.size|filesizeformat}}</td>
+                                    <td>{{assignment.professor.name}}</td>
+                                    {%if user.is_prof%}
+                                    <td>
+                                        <button class="btn btn-default btn-xs m-r-2" data-toggle="tooltip"
+                                            data-placement="top" title data-original-title="Update Assignment">
+                                            <a href="{%url 'assignment-update' assignment.slug %}"><i
+                                                    class="fa fa-pencil font-14"></i></a>
+                                        </button>
+                                        <button class="btn btn-default btn-xs" data-toggle="tooltip"
+                                            data-placement="top" title data-original-title="Delete Assignment">
+                                            <a href="{%url 'delete-assignment' assignment.slug%}" style="color: red;"><i
+                                                    class="fa fa-trash font-14"></i></a>
+                                        </button>
+                                        {%endif%}
+                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title
+                                            data-original-title="Download Assignment">
+                                            <a href="{%url 'download-file' assignment.file.path%}" style="color: green;"><i
+                                                    class="fa fa-download font-14"></i></a>
+                                        </button>
+                                    </td>
+                                 
+                                </tr>
+                                {%endfor%}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if assignments.has_other_pages %}
+                    <ul class="pagination">
+                        {%if assignments.has_previous %}
+                        <li><a class="btn btn-default" href="?page={{assignments.previous_page_number}}">&laquo;</a></li>
+                        {%else%}
+                        <li class="disabled"><span class="btn btn-default disabled">&laquo;</span></li>
+                        {%endif%}
+                        {%for i in assignments.paginator.page_range %}
+                        {%if assignments.number == i %}
+                            <li class="active"><span class="btn btn-primary">{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {%else%}
+                        <li><a class="btn btn-default" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                        {% if users.has_next %}
+                        <li><a class="btn btn-default" href="?page={{ users.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                        <li class="disabled"><span class="btn btn-default disabled">&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                    {%endif%}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

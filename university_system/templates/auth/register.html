@@ -1,16 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <form action="" method="POST">
-            {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit">Register</button>
+{%extends 'auth/auth.html'%}
+{%block title%}Register{%endblock%}
+{%block content%}
+<div class="content">
+    <form id="register-form" method="POST">
+        {%csrf_token%}
+        <h2 class="login-title">Sign Up</h2>
+        {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+        <div class="alert alert-danger alert-bordered alret-dismissable fade show">
+            <button class="close" data-dismiss="alert" aria-label="Close">×</button>
+            {{field}}:{{error}}
+        </div>
+        {%endfor%}
+        {%endfor%}
+        <div class="form-group">
+            <input class="form-control" type="text" maxlength="50" name="name" required id="id_name" placeholder="Name">
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="email" name="email" autofocus maxlength="150" required placeholder="Email" id="id_email">
+        </div>
+        <div class="form-group">
+            <input class="form-control" id="password" type="password" name="password1" autocomplete="new-password" required id="id_password1"
+                placeholder="Password">
+        </div>
+        <div class="form-group">
+            <input class="form-control" type="password" name="password2" autocomplete="new-password" id="id_password2"
+                placeholder="Confirm Password">
+        </div>
+        <div class="form-group text-left">
+            <label class="ui-checkbox ui-checkbox-info">
+                <input type="checkbox" required name="agree">
+                <span class="input-span"></span>I agree the terms and policy</label>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-info btn-block" type="submit">Sign up</button>
+        </div>
+        <div class="text-center">Already a member?
+            <a class="color-blue" href="{%url 'login'%}">Login here</a>
+        </div>
     </form>
-</body>
-</html>
+</div>
+{%endblock%}

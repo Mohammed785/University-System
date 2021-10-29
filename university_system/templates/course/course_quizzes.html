@@ -1,0 +1,110 @@
+{%extends 'index.html'%}
+{%block title%}Course Quizzes{%endblock%}
+{%load static%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-body">
+        <div class="clf">
+            {%include 'course/course_tab.html'%}
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                    <a href="{%url 'create-quiz' course.course_code%}" class="btn btn-outline-primary btn-block">Create Quiz</a>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Start</th>
+                                    <th>Duration</th>
+                                    <th>Open</th>
+                                    <th>Grade</th>
+                                    <th>Questions</th>
+                                    <th>Professor</th>
+                                    <th>Actions</th>
+                                    <th>
+                                        <div class="btn-group">
+                                            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa fa-bars m-r-5"></i><i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="{%url 'course-quizzes' course.course_code%}">All Quizzes</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{%url 'course-quizzes' course.course_code%}?status=opened">Opened Quizzes</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{%url 'course-quizzes' course.course_code%}?status=closed">Closed Quizzes</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{%url 'course-quizzes' course.course_code%}?status=answered">Answered Quizzes</a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="{%url 'course-quizzes' course.course_code%}?status=unanswered">Unanswered Quizzes</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {%for quiz in quizzes%}
+                                <tr>
+                                    <td>{{quiz.name}}</td>
+                                    <td>{{quiz.start}}</td>
+                                    <td>{{quiz.duration}} m</td>
+                                    <td>{{quiz.is_open}}</td>
+                                    <td>{{quiz.get_quiz_grade}}</td>
+                                    <td>{{quiz.questions.count}}</td>
+                                    <td>{{quiz.prof.en_name}}</td>
+                                    {%if user.is_prof%}
+                                    <td>
+                                        <button class="btn btn-default btn-xs m-r-5" data-toggle="tooltip" data-placement="top" title data-original-title="Edit Quiz">
+                                            <a href="{%url 'quiz-review' quiz.slug%}"><i class="fa fa-pencil font-14"></i></a>
+                                        </button>
+                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title data-original-title="Delete Quiz">
+                                            <a href="{%url 'quiz-delete' quiz.slug%}" style="color: red;"><i class="fa fa-trash font-14"></i></a>
+                                        </button>
+                                    </td>
+                                    {%else%}
+                                    <td>
+                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title data-original-title="Take Quiz">
+                                            <a href="{%url 'quiz-view' quiz.slug%}" style="color: green;"><i class="fa fa-pencil font-14"></i></a>
+                                        </button>
+                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="top" title data-original-title="View Quiz Answers">
+                                            <a href="{%url 'quiz-answers-view' quiz.slug%}" style="color: blue;"><i class="fa fa-check-circle font-14"></i></a>
+                                        </button>
+                                    </td>
+                                    {%endif%}
+                                </tr>
+                                    {%endfor%}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if quizzes.has_other_pages %}
+                    <ul class="pagination">
+                        {%if quizzes.has_previous %}
+                        <li><a class="btn btn-default" href="?page={{quizzes.previous_page_number}}">&laquo;</a></li>
+                        {%else%}
+                        <li class="disabled"><span class="btn btn-default disabled">&laquo;</span></li>
+                        {%endif%}
+                        {%for i in quizzes.paginator.page_range %}
+                        {%if quizzes.number == i %}
+                        <li class="active"><span class="btn btn-primary">{{ i }} <span class="sr-only">(current)</span></span></li>
+                        {%else%}
+                        <li><a class="btn btn-default" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                        {% if quizzes.has_next %}
+                        <li><a class="btn btn-default" href="?page={{ quizzes.next_page_number }}">&raquo;</a></li>
+                        {% else %}
+                        <li class="disabled"><span class="btn btn-default disabled">&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

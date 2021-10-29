@@ -7,14 +7,11 @@ from .managers import GradeManager, MidtermGradeManager, SemesterGradesManager, 
 
 User = get_user_model()
 
-"""
-i am thinking of making m2m between semestergrade and course cuz if student like me failed he will
-take the same course again
-"""
 
 SEMESTER_CHOICES = [("1ST", "First"), ("2ND", "Second")]
 
 YEARS = [(y, y) for y in range(2000, date.today().year + 1)]
+
 
 class Year(models.Model):
     year = models.PositiveSmallIntegerField(choices=YEARS, unique=True)
@@ -40,7 +37,9 @@ class Grade(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name="course_grade")
-    semester_grade = models.ForeignKey("SemesterGrade", on_delete=models.CASCADE, null=True, blank=True,related_name='course_grade')
+    semester_grade = models.ForeignKey(
+        "SemesterGrade", on_delete=models.CASCADE, null=True, blank=True, related_name="course_grade"
+    )
     objects = GradeManager()
 
     class Meta:
@@ -87,11 +86,11 @@ class SemesterGrade(models.Model):
 
     def calc_gpa(self):
         return 0.0
-    
+
     def calc_total(self):
-        grades = {course:course.get_total_grades() for course in self.course_grade.all()}
+        grades = {course: course.get_total_grades() for course in self.course_grade.all()}
         total = sum(grades.values())
-        return (grades,total)
+        return (grades, total)
 
 
 class MidtermGrade(models.Model):
@@ -110,7 +109,7 @@ class MidtermGrade(models.Model):
 
 
 class AssignmentGrade(models.Model):
-    mark = models.PositiveSmallIntegerField(default=0,null=True, blank=True)
+    mark = models.PositiveSmallIntegerField(default=0, null=True, blank=True)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name="mark")
     student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"is_prof": False})
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name="assignment")
@@ -129,12 +128,11 @@ class QuizGrade(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="quiz_grade")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="quiz_grade")
     grade = models.ForeignKey(Grade, on_delete=models.CASCADE, related_name="quiz")
-    year = models.ForeignKey(Year,on_delete=models.CASCADE,related_name='quiz_grade')
+    year = models.ForeignKey(Year, on_delete=models.CASCADE, related_name="quiz_grade")
     objects = QuizGradeManager()
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "quiz"], name="one_grade")]
-        
+
     def __str__(self):
         return f"{self.student.college_id} grade:{self.grade}"
-

@@ -1,0 +1,7 @@
+{%extends 'error/error.html'%}
+{%block title%}403{%endblock%}
+{%block code%}403{%endblock%}
+{%block error%}FORBIDDEN{%endblock%}
+{%block description%}You don't have the permission to access this page check your url again or try to login
+<a class="btn btn-success" href="{%url 'home'%}">Go homepage</a>
+{%endblock%}

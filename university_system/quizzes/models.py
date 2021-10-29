@@ -2,12 +2,12 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from users.utils import PathAndRename, slug_generator, image_resize
+from users.utils import slug_generator, image_resize
 from courses.models import Course
 from datetime import datetime, timedelta
-import pytz
 from ckeditor_uploader.fields import RichTextUploadingField
 from .managers import QuizManager
+import pytz
 
 
 User = get_user_model()
@@ -17,11 +17,8 @@ class Quiz(models.Model):
     name = models.CharField(max_length=30)
     start = models.DateTimeField(null=True)
     duration = models.IntegerField(null=True, blank=True)
-    quiz_image = models.ImageField(
-        upload_to=PathAndRename("images\\quiz_images"), default="images\\quiz_images\\default.png"
-    )
     slug = models.SlugField(max_length=5, null=True, blank=True, unique=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE,related_name='quizzes')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="quizzes")
     prof = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, limit_choices_to={"is_prof": True})
     objects = QuizManager()
 
@@ -36,7 +33,6 @@ class Quiz(models.Model):
         if not self.slug:
             self.slug = slug_generator(self)
         super().save(*args, **kwargs)
-        image_resize(self.quiz_image.path)
 
     def get_absolute_url(self):
         return reverse("create-quiz-question", kwargs={"slug": self.slug})
@@ -66,7 +62,6 @@ class QuizQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
 
     class Meta:
-        # find a way to handle when user enter non unique values to redirect them to page or show a message insted of logging error
         constraints = [models.UniqueConstraint(fields=["body", "quiz"], name="body_of_the_question")]
         indexes = [models.Index(fields=["slug"], name="question_idx")]
 
@@ -80,8 +75,8 @@ class QuizQuestion(models.Model):
         for token in self.body.split():
             if token.startswith("src="):
                 filepath = token.split("=")[1].strip('"')
-                filepath = filepath.replace("/media", settings.MEDIA_ROOT)  # don't forget to add PathAndRename
-                image_resize(filepath)  # do resize in-place
+                filepath = filepath.replace("/media", settings.MEDIA_ROOT)
+                image_resize(filepath)
 
         return super().save(*args, **kwargs)
 
@@ -115,9 +110,6 @@ class QuizQuestionChoices(models.Model):
             self.slug = slug_generator(self)
         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):# recheck this i should remove it or change it
-        return reverse("view-qs")
-
     @property
     def get_grade(self):
         return self.question.grade
@@ -130,12 +122,21 @@ class QuizQuestionChoices(models.Model):
     def get_count(self):
         return self.student_ans.count()
 
+
+class QuizAttempts(models.Model):
+    students = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"is_prof": False})
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="students_attempts")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.students.college_id},{self.quiz.name},{self.timestamp}"
+
+
 class StudentQuizAnswers(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"is_prof": False})
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE,related_name='student_answers')
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="student_answers")
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
-    choice = models.ForeignKey(QuizQuestionChoices, on_delete=models.CASCADE,related_name='student_ans')
-
+    choice = models.ForeignKey(QuizQuestionChoices, on_delete=models.CASCADE, related_name="student_ans")
     class Meta:
         constraints = [models.UniqueConstraint(fields=["student", "question"], name="one_answer_only")]
 
@@ -152,10 +153,3 @@ class StudentQuizAnswers(models.Model):
         return 0
 
 
-class QuizAttempts(models.Model):
-    students = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"is_prof": False})
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="students_attempts")
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.students.college_id},{self.quiz.name},{self.timestamp}"

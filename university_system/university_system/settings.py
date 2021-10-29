@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'college_views.apps.CollegeViewsConfig',
     'api.apps.ApiConfig',
     'ckeditor',
-    'rest_framework'
+    'rest_framework',
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [

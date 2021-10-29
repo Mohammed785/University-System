@@ -1,30 +1,25 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
 from courses.models import Course
+from .models import Year, Semester
+from datetime import datetime
 
+
+@login_required
 def grades_home(request):
-    return render(request,'grade/home.html')
+    courses = Course.objects.filter(students__id=request.user.id).all()
+    return render(request, "grade/home.html",context={"courses":courses})
 
-def course_grade(request,course_code):#show course pie chart and compare it with other years
-    course = Course.objects.get(course_code=course_code)
-    return render(request,'grade/course_grade.html',context={'course':course})
 
-def quizzes_grade(request):#show all quizzes grades
-    return render(request,'grade/quizzes.html')
+@login_required
+def course_grade(request, course_code):
+    course = get_object_or_404(Course, course_code=course_code)
+    year = get_object_or_404(Year, year=datetime.now().year)
+    return render(request, "grade/course_grades.html", context={"course": course, "year": year})
 
-def course_quiz_grade(request,course_code):#show course quiz grades
-    course = Course.objects.get(course_code=course_code)
-    return render(request,'grade/course_quiz_grade',context={'course':course})
 
-def course_assignment_grade(request,course_code):
-    course = Course.objects.get(course_code=course_code)
-    return render(request,'grade/course_assignment_grade',context={'course':course})
-
-def course_midterm_grade(request,course_code):    
-    course = Course.objects.get(course_code=course_code)
-    return render(request,'grade/course_midterm_grade',context={'course':course})
-
-def semester_grade(request):#show current semester grade chart and compare it with other semesters//how about show a chart with all courses in this semester
-    return render(request,'grade/semester_grade')
-
-def year_grade(request):#show current year chart as pie with two (semesters) and compare it with other years//how about show a chart with all courses in this year
-    return render(request,'grade/year_grade')
+@login_required
+def semester_grade(request, year, semester):
+    year = get_object_or_404(Year, year=year)
+    semester = get_object_or_404(Semester, semester=semester)
+    return render(request, "grade/semester_grade.html", context={"year": year, "semester": semester})

@@ -1,0 +1,98 @@
+{%extends 'index.html'%}
+{%block title%}Course Questions{%endblock%}
+{%load static%}
+{%load widget_tweaks%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-body">
+        <div class="clf">
+            {%include 'course/course_tab.html'%}
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                    {%if user.is_prof%}
+                    <form class="form-horizontal" method="POST" id="question-form">
+                        {%csrf_token%}
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label"><label for="question">Question:</label></label>
+                            <div class="col-sm-10">
+                                <textarea name="question" cols="40" rows="10" class="form-control"
+                                    id="question"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-10 ml-sm-auto">
+                                <button class="btn btn-info" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ibox">
+    <div class="ibox-body">
+        <ul class="media-list">
+            {%for question in questions%}
+            <li class="media">
+                <a class="media-img" href="javascript:;">
+                    <img src="{{question.author.avatar.url}}" style="width:45px;">
+                </a>
+                <div class="media-body">
+                    <h6 class="media-heading">{{question.author.name}}</h6>
+                    <p>{{question.body}}</p>
+                    {%for answer in question.answers.all%}
+                    <div class="media">
+                        <a class="media-img" href="javascript:;">
+                            <img src="{{question.author.avatar.url}}" style="width:45px;">
+                        </a>
+                        <div class="media-body">
+                            <h6 class="media-heading">{{answer.author.name}}</h6>
+                            <p>{{answer.body}}</p>
+                        </div>
+                        
+                        <div class="media-right">
+                            {%if answer.author == user %}
+                            <button class="btn btn-outline-success edit-btn" data-answerSlug="{{answer.slug}}">Edit</button>
+                            <a class="btn btn-outline-danger" href="{%url 'delete-answer' answer.slug %}">Delete</a>
+                            {%endif%}
+                            {%if answer.author.is_prof%}
+                            <i class="fa fa-star font-16 color-orange"></i>
+                            {%endif%}
+                        </div>
+                    </div>
+                    {%endfor%}
+                </div>
+                {%if question.author.is_prof%}
+                <div class="media-right">
+                    <a class="btn btn-outline-success" href="{%url 'edit-question' question.slug%}" >Edit</a>
+                    <a href="{%url 'delete-question' question.slug%}" class="btn btn-outline-danger">Delete</a>
+                    <i class="fa fa-star font-16 color-orange"></i>
+                </div>
+                {%endif%}
+            </li>
+            <form class="form-inline answer-form" method="POST" data-questionSlug="{{question.slug}}">
+                {%csrf_token%}
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label"><label for="answer">Answer:</label></label>
+                    <div class="col-sm-10">
+                        <textarea name="answer" class="form-control" placeholder="Enter Answer For This Question"
+                            id="answer"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-10 ml-sm-auto">
+                        <button class="btn btn-info" type="submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+            <hr>
+            {%endfor%}
+        </ul>
+    </div>
+</div>
+{%endblock%}
+{%block js%}
+<script src="{%static 'js/questions.js'%}"></script>
+{%endblock%}

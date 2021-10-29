@@ -1,16 +1,39 @@
+{%extends 'index.html'%}
+{%block title%}Semester Grade{%endblock%}
 {%load static%}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <canvas id="myChart1" width="400" height="400"></canvas>
-    <script src="{%static 'js/jquery-3.3.1.min.js'%}"></script>
-    <script src="{%static 'js/chart.min.js'%}"></script>
-    <script src="{%static 'js/SemesterCharts.js'%}"></script>
-</body>
-</html>
+{%block content%}
+<div class="clf">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox">
+                <div class="ibox-head">
+                    <div class="ibox-title">Semester Chart</div>
+                </div>
+                <div class="ibox-body">
+                    <div>
+                        <div class="chartjs-size-monitor"
+                            style="position: absolute; inset: 0px; overflow: hidden; pointer-events: none; visibility: hidden; z-index: -1;">
+                            <div class="chartjs-size-monitor-expand"
+                                style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                                <div style="position:absolute;width:1000000px;height:1000000px;left:0;top:0">
+                                </div>
+                            </div>
+                            <div class="chartjs-size-monitor-shrink"
+                                style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1;">
+                                <div style="position:absolute;width:200%;height:200%;left:0; top:0"></div>
+                            </div>
+                        </div>
+                        <canvas id="myChart1" data-year="{{year.year}}" data-semester="{{semester.semester}}"
+                            style="height: 200px; display: block; width: 586px;" width="586" height="200"
+                            class="chartjs-render-monitor"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
+{%block js%}
+<script src="{%static 'js/chart.min.js'%}"></script>
+<script src="{%static 'js/SemesterCharts.js'%}" ></script>
+{%endblock%}

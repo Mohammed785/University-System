@@ -1,16 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <form action="" method="POST" enctype="multipart/form-data">
-        {%csrf_token%}
-        {{form}}
-        <button type="submit">CHange</button>
-    </form>
-</body>
-</html>
+{%extends 'index.html'%}
+{%block title%}Profile{%endblock%}
+{%load static%}
+{%load widget_tweaks%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-body">
+        <div class="clf">
+            <div class="tab-content">
+                <div class="tab-pane fade show active">
+                    <div style="margin-bottom: 10px;display: flex;justify-content: center;">
+                        <img class="img-circle" style="border-radius: 50%;max-width: 20%;" src="{{user.avatar.url}}">
+                    </div>
+                    <form class="form-horizontal" method="POST" enctype="multipart/form-data">
+                        {%csrf_token%}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-bordered alret-dismissable fade show">
+                            <button class="close" data-dismiss="alert" aria-label="Close">×</button>
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% for field in form.visible_fields %}
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">{{field.label_tag}}</label>
+                            <div class="col-sm-10">
+                                {%if form.is_bound%}
+                                {%if field.errors%}
+                                {%render_field field class="form-control is-invalid"%}
+                                {%for error in field.errors%}
+                                <div class="invalid-feedback">
+                                    {{ error }}
+                                </div>
+                                {%endfor%}
+                                {%else%}
+                                {% render_field field class="form-control is-valid" %}
+                                {%endif%}
+                                {%else%}
+                                {% render_field field class="form-control" %}
+                                {%endif%}
+                                {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {%endfor%}
+                        <div class="form-group row">
+                            <div class="col-sm-10 ml-sm-auto">
+                                <button class="btn btn-info" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <a href="{%url 'profile-change-password'%}">Change Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

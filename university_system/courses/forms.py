@@ -1,21 +1,34 @@
 from django import forms
-from .models import Course,Announcement,Assignment,CourseFiles
+from .models import Course, Announcement, Assignment, CourseFiles, Questions, Answers
 
 
-class CreateAssignmentForm(forms.ModelForm):
-    deadline = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type':'datetime-local'}))
-    class Meta():
+class AssignmentForm(forms.ModelForm):
+    deadline = forms.DateTimeField(widget=forms.DateTimeInput(attrs={"type": "datetime-local"}))
+
+    class Meta:
         model = Assignment
-        fields = ['file','deadline']
+        fields = ["name", "file", "max_mark", "deadline", "notes"]
 
-class CreateAnnouncementForm(forms.ModelForm):
-    class Meta():
+
+class AnnouncementForm(forms.ModelForm):
+    class Meta:
         model = Announcement
-        fields = ['body']
+        fields = ["body", "public"]
 
-class CreateCourseFiles(forms.ModelForm):
-    class Meta():
+
+class CourseFilesForm(forms.ModelForm):
+    class Meta:
         model = CourseFiles
-        fields = ['file']
-        
+        fields = ["name", "file"]
 
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Questions
+        fields = ["body"]
+
+
+class AnswerForm(forms.ModelForm):
+    class Meta:
+        model = Answers
+        fields = ["body"]

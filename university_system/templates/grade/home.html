@@ -1,0 +1,44 @@
+{%extends 'index.html'%}
+{%load static%}
+{%block title%}Courses{%endblock%}
+{%block content%}
+<div class="page-content fade-in-up">
+    <div class="row">
+        {%if courses%}
+        {%for course in courses%}
+        <div class="col-md-9">
+            <div class="card-deck">
+                <div class="card">
+                    <img class="card-img-top" src="{%static course.course_image.url%}" alt="">
+                    <div class="card-body">
+                        <a href="{%url 'course-grade' course.course_code%}">
+                            <h5 class="card-title">{{course.name}}</h5>
+                        </a>
+                        <div class="text-muted card-subtitle">{{course.course_code}}</div>
+                        <div>{{course.description|safe}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+        <div class="col-md-9 m-t-20">
+            <div class="card-deck">
+                <div class="card">
+                    <img class="card-img-top" src="{%static course.course_image.url%}" alt="">
+                    <div class="card-body">
+                        <a href="{%url 'semester-grade' year=2021 semester='1ST' %}">
+                            <h5 class="card-title">Semester</h5>
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%else%}
+        <h1 style="position: absolute;transform:translate(50%,70%);text-transform: capitalize;color: #7E57C2;">You Are
+            Not Registered to any course</h1>
+        <img src="{%static 'media/images/course_images/NoCourses.png'%}" alt="">
+        {%endif%}
+    </div>
+</div>
+{%endblock%}

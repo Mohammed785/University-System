@@ -1,0 +1,71 @@
+
+
+{%extends 'index.html'%}
+{%block title%}Take Quiz{%endblock%}
+{%block css%}
+    <style>
+        /* the why to resize image */
+        .ibox-body img {
+            width: 200px !important;
+            height: 200px !important;
+        }
+    </style>{%endblock%}
+{%block content%}
+<div class="ibox">
+    <div class="ibox-head" style="justify-content: center;">
+        <div class="ibox-title" style="text-transform: capitalize;">
+            Quiz Name:{{quiz.name}} Duration:{{quiz.duration}}
+        </div>
+    </div>
+    <div class="ibox-body">
+    <form action="" id='myform' method="POST">
+            {%csrf_token%}
+        {%for question in form.questions%}
+        <div style="display: flex;justify-content: space-between;align-items: baseline;">
+            <h3>{{question.body|safe}}</h3>
+        </div>
+        <ul>
+            {%for choice in question.choices.all%}            
+            <li>
+                <label>
+                    <input type="radio" class="input" name="{{question.id}}" value="{{choice.body}}" required id="id_{{question.id}}_{{choice.id}}">
+                    {{choice.body}}
+                </label>
+            </li>
+            {%endfor%}
+        </ul>
+        <hr>
+        {%endfor%}
+        </ul>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+</div>
+{%endblock%}
+
+{%block js%}
+    <script>
+        let endpoint = '/api/v1/quiz/{{quiz.slug}}/time/';
+        let form = document.getElementById('myform');
+        let inputs = document.querySelectorAll('.input');
+        console.log(form.children)
+        function check_time() {
+            $.ajax({
+                method: 'GET',
+                url: endpoint,
+                success: data => {
+                    console.log(data)
+                    if (data == false) {
+                        clearInterval(countTime);
+                        inputs.forEach(input => {
+                                $(input).attr("disabled", true)
+                        });
+                        prompt("Times Up Please Don't Forget To Submit The Form");
+                    }
+                }
+            })
+        }
+        countTime = setInterval(check_time, 3000);
+        check_time();
+    </script>
+{%endblock%}

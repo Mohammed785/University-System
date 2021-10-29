@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import (Course, Announcement, Assignment,CourseFiles,Questions,Answers)
+from .models import Course, Announcement, Assignment, CourseFiles, Questions, Answers
 
 
 admin.site.register(Course)
