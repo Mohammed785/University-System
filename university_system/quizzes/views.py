@@ -4,7 +4,7 @@ from django.views.generic import ListView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from users.decorators import check_prof_previlage
+from users.decorators import check_prof_privilege
 from .models import Course, Quiz, QuizAttempts, QuizQuestion, QuizQuestionChoices
 from .forms import CreateQuizForm, CreateQuizQuestionChoices, CreateQuizQuestionForm, AnswerQuizForm
 from grades.models import QuizGrade
@@ -82,20 +82,20 @@ def review_quiz_view(request, slug):
 
 def take_quiz_view(request, slug):
     quiz = get_object_or_404(Quiz, slug=slug)
-    attemp = QuizAttempts.objects.filter(quiz=quiz, students=request.user).first()
+    attempt = QuizAttempts.objects.filter(quiz=quiz, students=request.user).first()
     if not quiz.is_open:
         messages.info(request, "Quiz Is Closed")
         return redirect("home")
-    if attemp:
+    if attempt:
         messages.info(request, "You Have Already Answered This Quiz")
         return redirect("home")
     form = AnswerQuizForm(questions=quiz.questions.all())
     if request.method == "POST":
         form = AnswerQuizForm(data=request.POST, questions=quiz.questions.all(), user=request.user)
         if form.is_valid():
-            attemp = form.save()
-            attemp.quiz = quiz
-            attemp.save()
+            attempt = form.save()
+            attempt.quiz = quiz
+            attempt.save()
             return redirect("course-quizzes", course_code=quiz.course.course_code)
     context = {"quiz": quiz, "form": form}
     return render(request, "quiz/take_quiz.html", context=context)
@@ -193,7 +193,7 @@ def update_question_choice(request, slug):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def delete_quiz(request, slug):
     quiz = get_object_or_404(Quiz, slug=slug)
     if not delete_check(request, "You Are Not Allowed To Delete This Quiz", quiz.prof):
@@ -204,7 +204,7 @@ def delete_quiz(request, slug):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def delete_question(request, slug):
     question = get_object_or_404(QuizQuestion, slug=slug)
     if not delete_check(request, "You Are Not Allowed To Delete This Question", question.quiz.prof):
@@ -215,7 +215,7 @@ def delete_question(request, slug):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def delete_choice(request, slug):
     choice = get_object_or_404(QuizQuestionChoices, slug=slug)
     if not delete_check(request, "You Are Not Allowed To Delete This Choice", choice.get_author):

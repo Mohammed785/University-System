@@ -12,17 +12,7 @@ function getGradient(ctx, chartArea) {
     }
     return gradient
 };
-/*
-click event
-canvas.addEventListener('click', (ev) => {
-    const activePoints = myChart1.getElementsAtEventForMode(ev, 'nearest', { intersect: true }, true);
-    if (activePoints.length) {
-        const point = activePoints[0];
-        var label = myChart1.data.labels[point.index];
-        var value = myChart1.data.datasets[point.datasetIndex].data[point.index];
-        console.log(label + ' Has Been Clicked And Its Values ' + value);
-    }
-})*/
+
 const bgColors = [
     '#0e3d8a',
     '#623d94',

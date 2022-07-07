@@ -54,7 +54,7 @@ class Grade(models.Model):
             total += quiz.mark
         return total
 
-    def get_assignament_grades(self):
+    def get_assignment_grades(self):
         total = 0
         for assin in self.assignment.all():
             total += assin.mark
@@ -68,7 +68,7 @@ class Grade(models.Model):
 
     def get_total_grades(self):
         return (
-            self.get_midterm_grades() + self.final + self.get_quiz_grades() + self.get_assignament_grades() + self.other
+            self.get_midterm_grades() + self.final + self.get_quiz_grades() + self.get_assignment_grades() + self.other
         )
 
 

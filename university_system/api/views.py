@@ -8,7 +8,7 @@ from .serializers import (
     AnnouncementSerializer,AssignmentGradeSerializer,AssignmentSerializer,MidtermGradeSerializer,AnswersSerializer,
     CourseSerializer,QuizGradeSerializer,QuizSerializer,SemesterGradeSerializer,GradeSerializer,QuestionsSerializer
 )
-from users.decorators import check_anonymous, check_prof_previlage, try_expect
+from users.decorators import check_anonymous, check_prof_privilege, try_expect
 
 
 @api_view(["GET"])
@@ -21,7 +21,7 @@ def course_grade_api(request, course_code):
     grades = {
         "Final": grade.final,
         "Quizzes": grade.get_quiz_grades(),
-        "Assignament": grade.get_assignament_grades(),
+        "Assignment": grade.get_assignment_grades(),
         "Midterm": grade.get_midterm_grades(),
         "Others": grade.other,
     }
@@ -34,7 +34,7 @@ def course_grade_api(request, course_code):
 @try_expect(exceptions.NotFound, Course.DoesNotExist, Quiz.DoesNotExist)
 def course_quizzes_grade_api(request, course_code):
     course = Course.objects.get(course_code=course_code)
-    quizzes = Quiz.objects.get_answered_quizzes(course=course, studnet=request.user)
+    quizzes = Quiz.objects.get_answered_quizzes(course=course, student=request.user)
     grades = {quiz.name: Quiz.objects.get_student_grade(quiz, request.user) for quiz in quizzes}
     data = {
         "labels": grades.keys(),
@@ -157,7 +157,7 @@ def assignment_detail_api(request, slug):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, QuizGrade.DoesNotExist)
 def quiz_grades_detail_api(request, slug):
     avg, count, name, total = QuizGrade.objects.get_quiz_avg(slug)
@@ -167,7 +167,7 @@ def quiz_grades_detail_api(request, slug):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, QuizGrade.DoesNotExist)
 def quiz_grade_search_api(request, slug, mark, type):
     if type.lower() == "greater":
@@ -182,7 +182,7 @@ def quiz_grade_search_api(request, slug, mark, type):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, QuizGrade.DoesNotExist)
 def course_quizzes_detail(request, course_code, year):
     avg = QuizGrade.objects.get_course_avg(course_code, year)
@@ -191,7 +191,7 @@ def course_quizzes_detail(request, course_code, year):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, MidtermGrade.DoesNotExist)
 def midterm_grade_search_api(request, course_code, semester, year, mark, type):
     if type.lower() == "greater":
@@ -206,7 +206,7 @@ def midterm_grade_search_api(request, course_code, semester, year, mark, type):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, SemesterGrade.DoesNotExist)
 def student_semester_grade_api(request, college_id, semester, year):
     return Response(SemesterGrade.objects.get_student_semester_grades(college_id, semester, year))
@@ -214,7 +214,7 @@ def student_semester_grade_api(request, college_id, semester, year):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, SemesterGrade.DoesNotExist)
 def students_semester_grade_detail_api(request, semester, year):
     return Response(SemesterGrade.objects.get_semester_grades_avg(semester, year))
@@ -222,7 +222,7 @@ def students_semester_grade_detail_api(request, semester, year):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, Grade.DoesNotExist)
 def grades_search_api(request, course_code, grade, year, type):
     if type.lower() == "greater":
@@ -237,7 +237,7 @@ def grades_search_api(request, course_code, grade, year, type):
 
 @api_view(["GET"])
 @check_anonymous
-@check_prof_previlage
+@check_prof_privilege
 @try_expect(exceptions.NotFound, Grade.DoesNotExist)
 def course_grades_detail_api(request, course, year):
     avg, count, total = Grade.objects.get_avg_course_grades(course, year)

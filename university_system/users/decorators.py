@@ -27,7 +27,7 @@ def check_login(func):
     return wrapper
 
 
-def check_prof_previlage(func):
+def check_prof_privilege(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         if not request.user.is_prof:

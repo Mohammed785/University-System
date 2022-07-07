@@ -48,8 +48,8 @@ def image_resize(path):
     fixed_height = 720
     img = Image.open(path)
     if img.height > 720 or img.width > 1280:
-        height_precent = fixed_height / float(img.size[1])
-        width_size = int(float(img.size[0]) * float(height_precent))
+        height_percent = fixed_height / float(img.size[1])
+        width_size = int(float(img.size[0]) * float(height_percent))
         img = img.resize((width_size, fixed_height), Image.HAMMING)
         img.save(path)
 

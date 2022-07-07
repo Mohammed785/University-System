@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import FileResponse, HttpResponseForbidden
 from .models import Course, Announcement, Assignment, CourseFiles, Questions, Answers
 from .forms import AnnouncementForm, AssignmentForm, CourseFilesForm, QuestionForm
-from users.decorators import check_prof_previlage
+from users.decorators import check_prof_privilege
 from users.utils import delete_check
 
 @login_required
@@ -54,7 +54,7 @@ def course_assignments(request, course_code):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def assignment_update(request, slug):
     assignment = get_object_or_404(Assignment, slug=slug)
     form = AssignmentForm(instance=assignment)
@@ -100,7 +100,7 @@ def course_announcements(request, course_code):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def announcement_update(request, slug):
     announcement = get_object_or_404(Announcement, slug=slug)
     form = AnnouncementForm(instance=announcement)
@@ -138,7 +138,7 @@ def course_files_view(request, course_code):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def delete_assignment(request, slug):
     assignment = get_object_or_404(Assignment, slug=slug)
     if not delete_check(request,"You Are Not Allowed To Delete This Assignment",assignment.professor):
@@ -149,7 +149,7 @@ def delete_assignment(request, slug):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def delete_announcement(request, slug):
     announcement = get_object_or_404(Announcement, slug=slug)
     if not delete_check(request,"You Are Not Allowed To Delete This Announcement",announcement.author):
@@ -160,7 +160,7 @@ def delete_announcement(request, slug):
 
 
 @login_required
-@check_prof_previlage
+@check_prof_privilege
 def delete_course_file(request, slug):
     file = get_object_or_404(CourseFiles, slug=slug)
     if not delete_check(request,"You Are Not Allowed To Delete This File",file.uploader):

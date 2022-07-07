@@ -12,14 +12,14 @@ def delete_course_files(sender, instance, **kwargs):
 
 
 @receiver(post_delete, sender=Assignment)
-def delete_assignament_files(sender, instance, **kwargs):
+def delete_assignment_files(sender, instance, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
 
 
 @receiver(pre_save, sender=Assignment)
-def delete_old_assignament(sender, instance, **kwargs):
+def delete_old_assignment(sender, instance, **kwargs):
     if not instance.pk:
         return False
     try:
